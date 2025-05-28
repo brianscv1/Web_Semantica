@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:music="http://example.org/music#">
+
+  <rdf:Description rdf:about="http://example.org/music#song1">
+    <rdf:type rdf:resource="http://example.org/music#Song"/>
+    <music:title>Imagine</music:title>
+    <music:genre>Rock</music:genre>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://example.org/music#song2">
+    <rdf:type rdf:resource="http://example.org/music#Song"/>
+    <music:title>Blinding Lights</music:title>
+    <music:genre>Pop</music:genre>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://example.org/music#song3">
+    <rdf:type rdf:resource="http://example.org/music#Song"/>
+    <music:title>Bohemian Rhapsody</music:title>
+    <music:genre>Rock</music:genre>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://example.org/music#song4">
+    <rdf:type rdf:resource="http://example.org/music#Song"/>
+    <music:title>Shape of You</music:title>
+    <music:genre>Pop</music:genre>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://example.org/music#song5">
+    <rdf:type rdf:resource="http://example.org/music#Song"/>
+    <music:title>Smells Like Teen Spirit</music:title>
+    <music:genre>Grunge</music:genre>
+  </rdf:Description>
+
+</rdf:RDF>

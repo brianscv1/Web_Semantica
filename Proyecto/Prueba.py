@@ -12,7 +12,7 @@ app = Flask(__name__)
 # Ontología y RDF
 MUSIC = Namespace("http://example.org/music#")
 g = Graph()
-g.parse("music_data.rdf")  # RDF con canciones, géneros y usuarios
+g.parse("C:/Users/brian/OneDrive/Documentos/GitHub/Web_Semantica/Proyecto/music_data.rdf")  # RDF con canciones, géneros y usuarios
 
 # Agente de Perfil
 class UserProfileAgent:
