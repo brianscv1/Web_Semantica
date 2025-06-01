@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero - Recomendador Musical</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .table-container {
+            margin-bottom: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .like {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .unlike {
+            background-color: #f44336;
+            color: white;
+        }
+        .back {
+            margin-top: 20px;
+            background-color: #2196F3;
+            color: white;
+            padding: 8px 15px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .search-container select {
+            padding: 8px;
+            width: 200px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Panel de Usuario: {{ user_id }}</h1>
+        
+        <div class="search-container">
+            <form method="post" action="/buscar/{{ user_id }}">
+                <select name="genre">
+                    <option value="">Selecciona un género</option>
+                    {% for genre in ['Pop', 'Rock', 'Electronica', 'Jazz', 'Hip_Hop', 'Metal', 'Reggaeton', 'Salsa', 'Country', 'Blues', 'K_Pop', 'Indie'] %}
+                    <option value="{{ genre }}">{{ genre }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <h2>Todas las Canciones</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Género</th>
+                        <th>Visualizaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for song in all_songs %}
+                    <tr>
+                        <td>{{ song.title }}</td>
+                        <td>{{ song.genre }}</td>
+                        <td>{{ song.views }}</td>
+                        <td>
+                            <form method="post" action="/dashboard/{{ user_id }}">
+                                <input type="hidden" name="song_id" value="{{ song.id }}">
+                                <button type="submit" name="action" value="like" class="like">Me gusta</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">No hay canciones disponibles.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="table-container">
+            <h2>Tus Canciones Gustadas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Género</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for song_id in liked_songs %}
+                        {% set song = original_all_songs|selectattr('id', 'equalto', song_id)|first %}
+                        {% if song %}
+                        <tr>
+                            <td>{{ song.title }}</td>
+                            <td>{{ song.genre }}</td>
+                            <td>
+                                <form method="post" action="/dashboard/{{ user_id }}">
+                                    <input type="hidden" name="song_id" value="{{ song.id }}">
+                                    <button type="submit" name="action" value="unlike" class="unlike">No me gusta</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3">Canción no encontrada</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not liked_songs %}
+                    <tr>
+                        <td colspan="3">No hay canciones en tu lista de gustadas.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="table-container">
+            <h2>Canciones Recomendadas</h2>
+            
+            <!-- Recomendaciones principales: solo si existen y el usuario tiene gustos -->
+            {% if has_main_recommendations and has_preferences %}
+            <h3>Para ti: Basado en tus gustos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Género</th>
+                        <th>Visualizaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for song in main_recommendations %}
+                    <tr>
+                        <td>{{ song.title }}</td>
+                        <td>{{ song.genre }}</td>
+                        <td>{{ song.views }}</td>
+                        <td>
+                            <form method="post" action="/dashboard/{{ user_id }}">
+                                <input type="hidden" name="song_id" value="{{ song.id }}">
+                                <button type="submit" name="action" value="like" class="like">Me gusta</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            
+            <!-- Recomendaciones de descubrimiento: siempre que existan -->
+            {% if discovery_recommendations %}
+            <h3>Descubre: Nuevos géneros para explorar</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Género</th>
+                        <th>Visualizaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for song in discovery_recommendations %}
+                    <tr>
+                        <td>{{ song.title }}</td>
+                        <td>{{ song.genre }}</td>
+                        <td>{{ song.views }}</td>
+                        <td>
+                            <form method="post" action="/dashboard/{{ user_id }}">
+                                <input type="hidden" name="song_id" value="{{ song.id }}">
+                                <button type="submit" name="action" value="like" class="like">Me gusta</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            
+            <!-- Top Recomendaciones (siempre visible) -->
+            <h3>Top Recomendaciones</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Género</th>
+                        <th>Visualizaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for song in combined_recommendations %}
+                    <tr>
+                        <td>{{ song.title }}</td>
+                        <td>{{ song.genre }}</td>
+                        <td>{{ song.views }}</td>
+                        <td>
+                            <form method="post" action="/dashboard/{{ user_id }}">
+                                <input type="hidden" name="song_id" value="{{ song.id }}">
+                                <button type="submit" name="action" value="like" class="like">Me gusta</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">No hay recomendaciones en este momento.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <a href="/" class="back">Regresar al inicio</a>
+    </div>
+</body>
+</html>
